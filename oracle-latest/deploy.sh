@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 1. 定義變數
-NAMESPACE="oracle-db"
+NAMESPACE="oracle-db-latest"
 CONFIGMAP_NAME="oracle-init-scripts"
 
 echo "--- 開始部署 Oracle Database ---"

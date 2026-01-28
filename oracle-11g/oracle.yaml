@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: oracle-11g
+  namespace: oracle-db-11g
+spec:
+  serviceName: "oracle-11g"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oracle-11g
+  template:
+    metadata:
+      labels:
+        app: oracle-11g
+    spec:
+      # 11g 社群版通常不需要強硬指定 54321，若掛載失敗再調整
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: oracle
+        image: gvenzl/oracle-xe:11 # 使用社群廣泛使用的 11g 版本
+        ports:
+        - containerPort: 1521
+        - containerPort: 8080 # 11g 有內建 Apex 管理介面
+        env:
+        - name: ORACLE_PASSWORD # 注意：變數名稱改變了
+          value: "AdminPassword2025"
+        volumeMounts:
+        - name: oracle-data
+          mountPath: /u01/app/oracle/oradata # 注意：路徑改變了
+        - name: init-scripts
+          mountPath: /u01/app/oracle/scripts/setup # 路徑同步變更
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: oracle-init-scripts
+  volumeClaimTemplates:
+  - metadata:
+      name: oracle-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-11g
+  namespace: oracle-db-11g
+spec:
+  selector:
+    app: oracle-11g
+  ports:
+  - name: sql-net
+    protocol: TCP
+    port: 1521
+    targetPort: 1521
+  - name: apex-web
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer

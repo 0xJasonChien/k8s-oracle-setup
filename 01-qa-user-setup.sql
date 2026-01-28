@@ -1,11 +1,1 @@
--- 建立 QA 帳號
-CREATE USER QA_READONLY IDENTIFIED BY "QA_Testing";
-GRANT CREATE SESSION TO QA_READONLY;
-
--- 建立測試表與資料
-CREATE USER QA_APP IDENTIFIED BY "AppPassword123";
-GRANT CONNECT, RESOURCE, UNLIMITED TABLESPACE TO QA_APP;
-CREATE TABLE QA_APP.connection_test (id NUMBER, msg VARCHAR2(50));
-INSERT INTO QA_APP.connection_test VALUES (1, 'Connection Successful!');
-GRANT SELECT ON QA_APP.connection_test TO QA_READONLY;
-COMMIT;
+kubectl port-forward svc/oracle-11g 1522:1521 -n oracle-db-11g
